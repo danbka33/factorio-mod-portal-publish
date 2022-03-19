@@ -15,6 +15,7 @@ fi
 
 # Strip "v" if it is prepended to the semver
 if [[ "${TAG:0:1}" == "v" ]]; then
+  GIT_TAG="${TAG}"
   TAG="${TAG:1}"
 fi
 
@@ -28,7 +29,7 @@ fi
 NAME=$(jq -r '.name' info.json)
 
 # Create the zip
-git archive --prefix "${NAME}_$INFO_VERSION/" -o "/github/workspace/${NAME}_$INFO_VERSION.zip" "${TAG}"
+git archive --prefix "${NAME}_$INFO_VERSION/" -o "/github/workspace/${NAME}_$INFO_VERSION.zip" "${GIT_TAG}"
 FILESIZE=$(stat --printf="%s" "${NAME}_${TAG}.zip")
 echo "File zipped, ${FILESIZE} bytes"
 unzip -v "${NAME}_${TAG}.zip"
