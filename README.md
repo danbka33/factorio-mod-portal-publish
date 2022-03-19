@@ -5,9 +5,9 @@ Builds and publishes tagged releases of a Factorio mod to the Factorio mod porta
 ## Usage
 Currently, this action expects a flat repo structure with exactly one complete mod in the git repo (with a valid info.json in the repo's root).
 
-It also expects tag names to match the Factorio mod version numbering scheme - three numbers separated by periods, eg. `1.15.0`.
+It also expects tag names to match the Factorio mod version numbering scheme - three numbers separated by periods, eg. `1.15.0`. Versions prefixed with a "v" will also be processed.
 
-Non-tag pushes will be ignored, but when a tag is pushed that is valid and matches the version number in info.json, the mod will be zipped up and published to the mod portal using the required secrets `FACTORIO_MOD_API_KEY` authenticate.
+Non-tag pushes will be ignored, but when a tag is pushed that is valid and matches the version number in info.json, the mod will be zipped up and published to the mod portal using the required secret `FACTORIO_MOD_API_KEY` to authenticate.
 
 An example workflow to publish tagged releases:
 
@@ -24,7 +24,7 @@ An example workflow to publish tagged releases:
             FACTORIO_MOD_API_KEY: ${{ secrets.FACTORIO_MOD_API_KEY }}
 
 
-The `FACTORIO_MOD_API_KEY` secret should be a valid API key generated with `ModPortal: Upload Mods` usage at https://factorio.com/profile
+The `FACTORIO_MOD_API_KEY` secret should be a valid API key generated with the `ModPortal: Upload Mods` usage at https://factorio.com/profile.
 
 A valid .gitattributes file is required to filter .git*/* directories. This file must be checked in and tagged to filter during a git-archive operation.
 
