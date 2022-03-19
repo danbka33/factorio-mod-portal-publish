@@ -33,14 +33,8 @@ FILESIZE=$(stat --printf="%s" "${NAME}_${TAG}.zip")
 echo "File zipped, ${FILESIZE} bytes"
 unzip -v "${NAME}_${TAG}.zip"
 
-# Get a CSRF token by loading the login form
-CSRF=$(curl -b cookiejar.txt -c cookiejar.txt -s https://factorio.com/login?mods=1 | grep csrf_token | sed -r -e 's/.*value="(.*)".*/\1/')
-
-# Authenticate with the credential secrets and the CSRF token, getting a session cookie for the authorized user
-curl -b cookiejar.txt -c cookiejar.txt -s -e https://factorio.com/login?mods=1 -F "csrf_token=${CSRF}" -F "username_or_email=${FACTORIO_USER}" -F "password=${FACTORIO_PASSWORD}" -o /dev/null https://factorio.com/login
-
 # Query the mod info, verify the version number we're trying to push doesn't already exist
-curl -b cookiejar.txt -c cookiejar.txt -s "https://mods.factorio.com/api/mods/${NAME}/full" | jq -e ".releases[] | select(.version == \"${TAG}\")"
+curl -s "https://mods.factorio.com/api/mods/${NAME}/full" | jq -e ".releases[] | select(.version == \"${TAG}\")"
 # store the return code before running anything else
 STATUS_CODE=$?
 
@@ -50,30 +44,28 @@ if [[ $STATUS_CODE -ne 4 ]]; then
 fi
 echo "Release doesn't exist for ${TAG}, uploading"
 
-# Load the upload form, getting an upload token
-UPLOAD_TOKEN=$(curl -b cookiejar.txt -c cookiejar.txt -s "https://mods.factorio.com/mod/${NAME}/downloads/edit" | grep token | sed -r -e "s/.*token: '(.*)'.*/\1/")
-if [[ -z "${UPLOAD_TOKEN}" ]]; then
-    echo "Couldn't get an upload token, failed"
+# Get an upload url for the mod
+URL_RESULT=$(curl -s -d "mod=${NAME}" -H "Authorization: Bearer ${FACTORIO_MOD_API_KEY}" https://mods.factorio.com/api/v2/mods/releases/init_upload)
+UPLOAD_URL=$(echo "${URL_RESULT}" | jq -r '.upload_url')
+if [[ -z "${UPLOAD_URL}" ]]; then
+    echo "Couldn't get an upload url, failed"
+    ERROR=$(echo "${URL_RESULT}" | jq -r '.error')
+    MESSAGE=$(echo "${URL_RESULT}" | jq -r '.message // empty')
+    echo "${ERROR}: ${MESSAGE}"
     exit 1
 fi
 
-# Upload the file, getting back a response with details to send in the final form submission to complete the upload
-UPLOAD_RESULT=$(curl -b cookiejar.txt -c cookiejar.txt -s -F "file=@${NAME}_${TAG}.zip;type=application/x-zip-compressed" "https://direct.mods-data.factorio.com/upload/mod/${UPLOAD_TOKEN}")
+# Upload the file
+UPLOAD_RESULT=$(curl -s -F "file=@${NAME}_${TAG}.zip" "${UPLOAD_URL}")
 
-# Parse 'em and stat the file for the form fields
-CHANGELOG=$(echo "${UPLOAD_RESULT}" | jq -r '@uri "\(.changelog)"')
-INFO=$(echo "${UPLOAD_RESULT}" | jq -r '@uri "\(.info)"')
-FILENAME=$(echo "${UPLOAD_RESULT}" | jq -r '.filename')
-THUMBNAIL=$(echo "${UPLOAD_RESULT}" | jq -r '.thumbnail // empty')
-
-if [[ "${FILENAME}" == "null" ]] || [[ -z "${FILENAME}" ]]; then
+# The success attribute only appears on successful uploads
+SUCCESS=$(echo "${UPLOAD_RESULT}" | jq -r '.success')
+if [[ -z "${SUCCESS}" ]]; then
     echo "Upload failed"
+    ERROR=$(echo "${UPLOAD_RESULT}" | jq -r '.error')
+    MESSAGE=$(echo "${UPLOAD_RESULT}" | jq -r '.message // empty')
+    echo "${ERROR}: ${MESSAGE}"
     exit 1
 fi
-echo "Uploaded ${NAME}_${TAG}.zip to ${FILENAME}, submitting as new version"
 
-# Post the form, completing the release
-curl -b cookiejar.txt -c cookiejar.txt -s -X POST -d "file=&info_json=${INFO}&changelog=${CHANGELOG}&filename=${FILENAME}&file_size=${FILESIZE}&thumbnail=${THUMBNAIL}" -H "Content-Type: application/x-www-form-urlencoded" -o /dev/null "https://mods.factorio.com/mod/${NAME}/downloads/edit"
-# TODO if that had a failure exit code then report failure, exit 1
-
-echo "Completed"
+echo "Upload of ${NAME}_${TAG}.zip completed"

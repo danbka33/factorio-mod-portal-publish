@@ -7,7 +7,7 @@ Currently, this action expects a flat repo structure with exactly one complete m
 
 It also expects tag names to match the Factorio mod version numbering scheme - three numbers separated by periods, eg. `1.15.0`.
 
-Non-tag pushes will be ignored, but when a tag is pushed that is valid and matches the version number in info.json, the mod will be zipped up and published to the mod portal using the required secrets `FACTORIO_USER` and `FACTORIO_PASSWORD` to authenticate.
+Non-tag pushes will be ignored, but when a tag is pushed that is valid and matches the version number in info.json, the mod will be zipped up and published to the mod portal using the required secrets `FACTORIO_MOD_API_KEY` authenticate.
 
 An example workflow to publish tagged releases:
 
@@ -21,11 +21,10 @@ An example workflow to publish tagged releases:
         - name: Publish Mod
           uses: shanemadden/factorio-mod-portal-publish@stable
           env:
-            FACTORIO_PASSWORD: ${{ secrets.FACTORIO_PASSWORD }}
-            FACTORIO_USER: ${{ secrets.FACTORIO_USER }}
+            FACTORIO_MOD_API_KEY: ${{ secrets.FACTORIO_MOD_API_KEY }}
 
 
-`FACTORIO_USER` and `FACTORIO_PASSWORD` secrets should be valid credentials to the Factorio mod portal with permissions to edit the mod defined in info.json.
+The `FACTORIO_MOD_API_KEY` secret should be a valid API key generated with `ModPortal: Upload Mods` usage at https://factorio.com/profile
 
 A valid .gitattributes file is required to filter .git*/* directories. This file must be checked in and tagged to filter during a git-archive operation.
 
