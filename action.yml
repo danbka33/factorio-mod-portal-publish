@@ -1,9 +1,9 @@
-name: 'Factorio Mod Portal Publish'
-author: 'Shane Madden'
-description: 'Publishes repos with Factorio mods to the Factorio mod portal'
+name: 'Factorio Mod Portal API Publish'
+author: 'Penguin_Spy'
+description: 'Publishes a Factorio mod to the mod portal using an API token'
 runs:
   using: 'docker'
   image: 'Dockerfile'
 branding:
   icon: 'settings'  
-  color: 'orange'
+  color: 'purple'
