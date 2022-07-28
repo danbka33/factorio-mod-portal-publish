@@ -19,14 +19,14 @@ An example workflow to publish tagged releases:
         steps:
         - uses: actions/checkout@master
         - name: Publish Mod
-          uses: shanemadden/factorio-mod-portal-publish@stable
+          uses: Penguin-Spy/factorio-mod-portal-publish@master
           env:
             FACTORIO_MOD_API_KEY: ${{ secrets.FACTORIO_MOD_API_KEY }}
 
 
 The `FACTORIO_MOD_API_KEY` secret should be a valid API key generated with the `ModPortal: Upload Mods` usage at https://factorio.com/profile.
 
-A valid .gitattributes file is required to filter .git*/* directories. This file must be checked in and tagged to filter during a git-archive operation.
+A valid `.gitattributes` file is required to filter .git*/* directories. This file must be checked in and tagged to filter during a git-archive operation. It should contain the following entries:
 
     .gitattributes export-ignore
     .gitignore export-ignore
