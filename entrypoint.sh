@@ -28,6 +28,9 @@ fi
 # Pull the mod name from info.json
 NAME=$(jq -r '.name' info.json)
 
+# Fix: fatal: detected dubious ownership in repository at '/github/workspace'
+git config --global --add safe.directory /github/workspace
+
 # Create the zip
 git archive --prefix "${NAME}_$INFO_VERSION/" -o "/github/workspace/${NAME}_$INFO_VERSION.zip" "${GIT_TAG}"
 FILESIZE=$(stat --printf="%s" "${NAME}_${TAG}.zip")
