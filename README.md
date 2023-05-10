@@ -11,7 +11,12 @@ Non-tag pushes will be ignored, but when a tag is pushed that is valid and match
 
 An example workflow to publish tagged releases:
 
-    on: push
+    on:
+      push:
+        branches:
+          - main
+        tags:
+          - v?([0-9]\d*)\.([0-9]\d*)\.([0-9]\d*)
     name: Publish
     jobs:
       publish:
@@ -19,7 +24,7 @@ An example workflow to publish tagged releases:
         steps:
         - uses: actions/checkout@master
         - name: Publish Mod
-          uses: Penguin-Spy/factorio-mod-portal-publish@master
+          uses: danbka33/factorio-mod-portal-publish@master
           env:
             FACTORIO_MOD_API_KEY: ${{ secrets.FACTORIO_MOD_API_KEY }}
 
