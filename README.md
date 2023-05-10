@@ -13,10 +13,6 @@ An example workflow to publish tagged releases:
 
     on:
       push:
-        branches:
-          - main
-        tags:
-          - v?([0-9]\d*)\.([0-9]\d*)\.([0-9]\d*)
     name: Publish
     jobs:
       publish:
