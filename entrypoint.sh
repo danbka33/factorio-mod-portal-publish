@@ -62,11 +62,10 @@ fi
 # Upload the file
 UPLOAD_RESULT=$(curl -s -F "file=@${NAME}_${TAG}.zip" "${UPLOAD_URL}")
 
-echo ${UPLOAD_RESULT}
-
 # The success attribute only appears on successful uploads
 SUCCESS=$(echo "${UPLOAD_RESULT}" | jq -r '.success')
-if [[ -z "${SUCCESS}" ]]; then
+
+if [[ "${SUCCESS}" == "null" ]]; then
     echo "Upload failed"
     ERROR=$(echo "${UPLOAD_RESULT}" | jq -r '.error')
     MESSAGE=$(echo "${UPLOAD_RESULT}" | jq -r '.message // empty')
