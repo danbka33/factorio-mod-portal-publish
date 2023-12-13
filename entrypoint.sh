@@ -62,6 +62,8 @@ fi
 # Upload the file
 UPLOAD_RESULT=$(curl -s -F "file=@${NAME}_${TAG}.zip" "${UPLOAD_URL}")
 
+echo ${UPLOAD_RESULT}
+
 # The success attribute only appears on successful uploads
 SUCCESS=$(echo "${UPLOAD_RESULT}" | jq -r '.success')
 if [[ -z "${SUCCESS}" ]]; then
